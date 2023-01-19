@@ -1,0 +1,2126 @@
+/* 
+
+ CSS 3D Guitar with Camera Simulation
+ Best viewed in Full Mode (Tested on Chrome and Firefox) 
+
+ Best performance observed in Firefox 80.0.1 (x64/WinNT 10)
+ hardware specifications: 4 GB/2 GB
+
+ */
+
+/* anti-aliasing */
+[ant]{box-shadow:0 0 0 6px rgba(0,0,0,0);}
+[pr-ant] div{box-shadow:0 0 0 6px rgba(0,0,0,0);}
+
+/* parent 3D */
+[t3d]{transform-style:preserve-3d;box-shadow:0 0 0 6px rgba(0,0,0,0);}
+[t3dc], [t3dc] div{transform-style:preserve-3d;box-shadow:0 0 0 6px rgba(0,0,0,0);}
+
+/* children 3D */
+[t3dp]::before, [t3dp]::after{transform-style:preserve-3d;box-shadow:0 0 0 6px rgba(0,0,0,0);}
+
+/* child 3D */
+[t3db]::before{transform-style:preserve-3d;}
+[t3da]::after{transform-style:preserve-3d;}
+
+/* shape reference for CSS Masks, we can reuse it later */
+.default-variables{
+/* #9D591A */
+--head-mask:url("data:image/svg+xml,%3Csvg width='66' height='143.13' viewBox='0 0 66 143.13' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='white' d='m10.485 138.09c-0.92144-2.7742-2.1926-6.9367-3.4731-9.25l-2.328-4.206-1.1134-38.5c-0.61239-21.175-2.0734-44.575-2.5985-52-0.52512-7.425-0.95871-15.638-0.96354-18.25l-0.00878-4.75 1.75-0.04389c0.9625-0.02414 3.4609-0.65416 5.552-1.4s5.4661-2.4677 7.5-3.8263 6.9605-3.2334 10.948-4.1661l7.25-1.6959 7.25 1.6959c3.9875 0.93276 8.9141 2.8075 10.948 4.1661 2.0339 1.3586 5.4089 3.0805 7.5 3.8263 2.0911 0.74588 4.5895 1.3759 5.552 1.4l1.75 0.04389-9e-3 4.75c-5e-3 2.6125-0.43842 10.825-0.96355 18.25-0.52512 7.425-1.4558 30.825-2.0682 52l-1.1134 38.5-2.3281 4.206c-1.2804 2.3133-3.082 6.4758-4.0034 9.25l-1.6751 5.044h-41.679z'/%3E%3C/svg%3E%0A");
+--head-mask-with-border:url("data:image/svg+xml,%3Csvg width='66' height='143.13' viewBox='0 0 66 143.13' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='none' stroke='white' stroke-width='6px' d='m10.485 138.09c-0.92144-2.7742-2.1926-6.9367-3.4731-9.25l-2.328-4.206-1.1134-38.5c-0.61239-21.175-2.0734-44.575-2.5985-52-0.52512-7.425-0.95871-15.638-0.96354-18.25l-0.00878-4.75 1.75-0.04389c0.9625-0.02414 3.4609-0.65416 5.552-1.4s5.4661-2.4677 7.5-3.8263 6.9605-3.2334 10.948-4.1661l7.25-1.6959 7.25 1.6959c3.9875 0.93276 8.9141 2.8075 10.948 4.1661 2.0339 1.3586 5.4089 3.0805 7.5 3.8263 2.0911 0.74588 4.5895 1.3759 5.552 1.4l1.75 0.04389-9e-3 4.75c-5e-3 2.6125-0.43842 10.825-0.96355 18.25-0.52512 7.425-1.4558 30.825-2.0682 52l-1.1134 38.5-2.3281 4.206c-1.2804 2.3133-3.082 6.4758-4.0034 9.25l-1.6751 5.044h-41.679z'/%3E%3C/svg%3E%0A");
+--head-mask-with-dark-border:url("data:image/svg+xml,%3Csvg width='66' height='143.13' viewBox='0 0 66 143.13' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='none' stroke='rgba(169,108,41,0.8)' stroke-width='4px' d='m10.485 138.09c-0.92144-2.7742-2.1926-6.9367-3.4731-9.25l-2.328-4.206-1.1134-38.5c-0.61239-21.175-2.0734-44.575-2.5985-52-0.52512-7.425-0.95871-15.638-0.96354-18.25l-0.00878-4.75 1.75-0.04389c0.9625-0.02414 3.4609-0.65416 5.552-1.4s5.4661-2.4677 7.5-3.8263 6.9605-3.2334 10.948-4.1661l7.25-1.6959 7.25 1.6959c3.9875 0.93276 8.9141 2.8075 10.948 4.1661 2.0339 1.3586 5.4089 3.0805 7.5 3.8263 2.0911 0.74588 4.5895 1.3759 5.552 1.4l1.75 0.04389-9e-3 4.75c-5e-3 2.6125-0.43842 10.825-0.96355 18.25-0.52512 7.425-1.4558 30.825-2.0682 52l-1.1134 38.5-2.3281 4.206c-1.2804 2.3133-3.082 6.4758-4.0034 9.25l-1.6751 5.044h-41.679z'/%3E%3C/svg%3E%0A");
+--pocket-mask:url("data:image/svg+xml,%3Csvg width='176.09' height='48.226' viewBox='0 0 176.09 48.226' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='m55.821 46.891c-12.952-1.1254-23.813-9.6041-36.731-10.996-6.1413-0.90448-12.359-1.0029-18.544-1.4206-0.18231-11.061-0.36461-22.122-0.54692-33.183 43.049-1.8314 86.156-1.228 129.23-1.142 15.628 0.031904 31.249 0.48319 46.863 1.142-0.18231 11.061-0.36461 22.122-0.54692 33.183-11.618 0.5855-23.52 1.013-34.312 5.8768-13.478 6.4881-28.808 6.6152-43.434 7.5947-13.993 0.53813-28.04 0.36312-41.979-1.0551z' fill='white'/%3E%3C/svg%3E%0A");
+
+--guitar-mask:url("data:image/svg+xml,%3Csvg width='531' height='675' viewBox='0 0 531 675' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='white' d='m219 673.92c-56.851-3.8927-107.11-18.1-138.68-39.202-56.905-38.04-82.814-91.278-79.974-164.33 2.4899-64.05 18.006-103.66 66.165-168.89 39.045-52.891 41.734-68.114 22.616-128.04-18.394-57.65-19.689-76.701-7.246-106.55 21.708-52.067 72.416-69.757 189.88-66.241l21.268 0.63651 1.564 5.5931c13.509 48.309 15.459 53.327 23.943 61.608 16.443 16.051 32.354 17.187 75.458 5.3879 28.691-7.8537 46.919-2.2117 56.461 17.476 7.4743 15.421 6.0848 27.121-8.9213 75.121-18.648 59.65-15.951 79.988 16.641 125.5 44.332 61.905 59.01 92.421 69.505 144.5 2.9683 14.73 2.6536 71.532-0.48765 88-11.296 59.217-52.749 106.35-113.33 128.86-49.022 18.216-119.89 25.693-194.87 20.559z'/%3E%3C/svg%3E%0A");
+--guitar-mask-with-border:url("data:image/svg+xml,%3Csvg width='531' height='675' viewBox='0 0 531 675' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='none' stroke='white' stroke-width='6px' d='m219 673.92c-56.851-3.8927-107.11-18.1-138.68-39.202-56.905-38.04-82.814-91.278-79.974-164.33 2.4899-64.05 18.006-103.66 66.165-168.89 39.045-52.891 41.734-68.114 22.616-128.04-18.394-57.65-19.689-76.701-7.246-106.55 21.708-52.067 72.416-69.757 189.88-66.241l21.268 0.63651 1.564 5.5931c13.509 48.309 15.459 53.327 23.943 61.608 16.443 16.051 32.354 17.187 75.458 5.3879 28.691-7.8537 46.919-2.2117 56.461 17.476 7.4743 15.421 6.0848 27.121-8.9213 75.121-18.648 59.65-15.951 79.988 16.641 125.5 44.332 61.905 59.01 92.421 69.505 144.5 2.9683 14.73 2.6536 71.532-0.48765 88-11.296 59.217-52.749 106.35-113.33 128.86-49.022 18.216-119.89 25.693-194.87 20.559z'/%3E%3C/svg%3E%0A");
+--guitar-mask-with-dark-border:url("data:image/svg+xml,%3Csvg width='531' height='675' viewBox='0 0 531 675' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='none' stroke='rgba(169,108,41,0.8)' stroke-width='6px' d='m219 673.92c-56.851-3.8927-107.11-18.1-138.68-39.202-56.905-38.04-82.814-91.278-79.974-164.33 2.4899-64.05 18.006-103.66 66.165-168.89 39.045-52.891 41.734-68.114 22.616-128.04-18.394-57.65-19.689-76.701-7.246-106.55 21.708-52.067 72.416-69.757 189.88-66.241l21.268 0.63651 1.564 5.5931c13.509 48.309 15.459 53.327 23.943 61.608 16.443 16.051 32.354 17.187 75.458 5.3879 28.691-7.8537 46.919-2.2117 56.461 17.476 7.4743 15.421 6.0848 27.121-8.9213 75.121-18.648 59.65-15.951 79.988 16.641 125.5 44.332 61.905 59.01 92.421 69.505 144.5 2.9683 14.73 2.6536 71.532-0.48765 88-11.296 59.217-52.749 106.35-113.33 128.86-49.022 18.216-119.89 25.693-194.87 20.559z'/%3E%3C/svg%3E%0A");
+}
+
+/* variables for easy access */
+.default-variables{
+--com: 500px; /*center of mass*/
+--width:380px;
+--length:72px;
+--height:970px;
+
+--shadow-min-length:90px;
+--shadow-blur-radius:blur(40px);
+
+--base-height:480px;
+--base-thickness:46;
+--shade-displacement-modulus:calc(var(--y) * 53 / 180); /*53*/
+
+/* applies to neck and head */
+--potential-shift:0px;
+--potential-displacement:43px;
+--potential-intersection-displacement:-52px;
+--potential-intersection-length:42px;
+--potential-intersection-width:40px;
+--potential-intersection-height:32px;
+--potential-thickness:8px;
+
+--neck-height:440px;
+--neck-width:60px;
+--string-pocket-width:40px;
+--neck-thin-ratio:13.6; /* in % */
+--neck-thin-ratio2:13.6%;
+--neck-thickness:18px;
+--neck-min-width:calc(var(--neck-width) - var(--neck-width) * var(--neck-thin-ratio) / 50);
+--neck-angle-ratio:1deg;
+--neck-border-size:3px;
+--neck-intersection-border-size:3px;
+--neck-pattern-size:100% 23px;
+--neck-pattern-extension-height:107px;
+
+--head-height:148px;
+--head-width:68px;
+--head-thickness:18px;
+--head-thin-ratio:2%;
+--head-max-width:50px;
+--head-angle:6deg;
+--head-config-spacing:30%;
+--head-config-length:calc(var(--head-width) + 10px);
+--head-config-cube-size:6px;
+--head-config-cube-shift:-3px;
+--head-knot-size:4px;
+--head-string-connectors-width:6px;
+--head-string-connectors-height:10px;
+--head-string-connectors-length:6px;
+--head-string-connectors-rotate:45deg;
+
+--pocket-top:100px;
+--string-size:1.4px;
+--string-distance:11px;
+--string-tilt:0deg;
+--string-attachment-top:20px;
+--string-height:calc(var(--height) - var(--pocket-top) - var(--string-attachment-top) - var(--head-height));
+--string-shift-1:20%;
+--string-shift-2:40%;
+--string-knot-shift:11px;
+--string-joiner-circle-diameter:4px;
+
+--string-knot-s-width:46px;
+--string-knot-s-height:3px;
+--string-knot-s-length:4px;
+--string-knot-tilt:6deg;
+
+--sound-hole-diameter-main:84px;
+--sound-hole-diameter-border:94px;
+--sound-hole-position:37%;
+
+--bottom-pocket-width:156px;
+--bottom-pocket-height:42px;
+}
+
+/* angles */
+.angle-guy.z-handle{
+transform:rotateZ(calc(var(--z) * 1deg));
+}
+
+.angle-guy.x-handle{
+transform:rotateX(calc(var(--x) * 1deg));
+}
+
+.angle-guy.y-handle{
+transform:rotateY(calc(var(--y) * 1deg));
+}
+
+/* debug */
+.debug .main-stage > .angle-guy::before,
+.debug .main-stage > .angle-guy::after{filter:blur(0px);border-radius:0;}
+.debug .angle-guy.x-handle{background:rgba(0,0,255,0.4);} 
+.debug .angle-guy.y-handle{background:rgba(255,0,0,0.4);}
+.debug .angle-guy.z-handle{background:rgba(0,255,0,0.4);}
+.debug .nest div{box-shadow:0 0 0 2px rgba(255,0,0,0.3)}
+
+/* transformation */
+.nest.guitar-base div{
+transform:translateZ(calc(var(--i) * 2px - var(--length) / 2));
+}
+
+.nest.guitar-base div::after{
+transform:translateZ(1px);
+}
+
+.guitar .guitar-base-contents{
+transform:translateZ(calc(var(--length) / 2));
+}
+
+.guitar-head div{
+transform:translateZ(calc(var(--i) * -2px));
+}
+
+.guitar .guitar-head{
+transform:translate3d(-50%,0px,0px) rotateX(var(--head-angle));
+transform-origin:50% 100%;
+}
+
+.guitar-head div::after{
+transform:translateZ(-1px);
+}
+
+.guitar .guitar-neck::after{
+transform:translateZ(calc(var(--neck-thickness) * -1));
+}
+
+.guitar-neck .sides-tb{
+transform:rotateX(90deg);
+transform-origin:50% 100%;
+}
+
+.guitar-neck .sides-tb::after{
+transform:translateX(-50%) translateZ(var(--neck-height));
+}
+
+.guitar-neck .sides-rl{
+transform:rotateY(90deg) translateX(100%);
+transform-origin:100% 100%;
+}
+
+.guitar-neck .sides-rl::before,
+.guitar-neck .sides-rl::after{
+transform:translateY(-100%) rotateX(var(--neck-angle-ratio));
+transform-origin:50% 100%;
+}
+
+.guitar-neck .sides-rl::after{
+transform:translateZ(calc(var(--neck-width) * -1)) translateY(-100%) rotateX(calc(var(--neck-angle-ratio) * -1));
+}
+
+/* shape equations */
+.guitar .guitar-neck::before,
+.guitar .guitar-neck::after{
+clip-path:polygon(calc(var(--neck-thin-ratio) * 1%) 0%, calc(100% - calc(var(--neck-thin-ratio) * 1%)) 0%, 100% 100%, 0% 100%);
+}
+
+.guitar .guitar-neck-mask{
+clip-path:polygon(calc(var(--neck-thin-ratio2) + var(--neck-border-size)) 0, calc(100% - var(--neck-border-size) - var(--neck-thin-ratio2)) 0, calc(100% - var(--neck-border-size)) calc(100% - var(--neck-border-size)), var(--neck-border-size) calc(100% - var(--neck-border-size)));
+}
+
+/* Default viewer system for every 3D Project */
+:root{
+--animation-duration:1s;
+}
+
+html, body{
+padding:0;
+margin:0;
+background-color:white;
+font-family:"Arial", sans-serif;
+font-size:10px;
+width:100vw;
+height:100vh;
+display:block;
+scrollbar-color:rgb(0,100,200) rgb(20,25,30);
+scrollbar-width:thin;
+}
+
+body{
+overflow:hidden;
+}
+
+.scalable body{
+overflow:auto;
+}
+
+body::before, .loading{
+content:"";
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+display:block;
+}
+
+body::before{
+background-image:radial-gradient(circle at 50% 50%, #FFF, #000);
+background-size:100vw 100vh;
+opacity:0.5;
+}
+
+.loading{
+background-color:#222;
+opacity:1;
+}
+
+.scalable .loading{
+opacity:0;
+transition:opacity ease 1.5s 0.5s;
+}
+
+body::after{
+content:"twitter.com/ShadowShahriar";
+position:fixed;
+right:0;
+top:0;
+padding:5px 10px;
+color:#000;
+}
+
+/* enhancements */
+::selection{
+background-color:rgba(255,255,255,0.2);
+color:white;
+}
+
+.noscroll{
+overflow:hidden;
+}
+
+.noanimations .uniform,
+.noanimations .object3d,
+.noanimations .extension,
+.noanimations #controls,
+.noanimations .guitar-base.nest div::before,
+.noanimations .guitar-base.nest div::after{
+transition:none;
+transition-property:none;
+transition-duration:0s;
+transition-timing-function:linear;
+}
+
+.noantialiasing [t3d],
+.noantialiasing [pr-ant] div{
+box-shadow:none;
+}
+
+.controls-hidden .uniform{
+left:calc(var(--ptx, 156px) - 156px);
+}
+
+/* maximum space to scale the scene uniformly */
+.uniform{
+position:absolute;
+left:var(--ptx, 156px); /* sidebar width */
+top:var(--pty, 0px); /*45,10*/
+width:100vw;height:100vh;
+transform:scale(var(--s,1));
+display:flex;
+align-items:center;
+overflow:visible;
+transition:transform ease var(--animation-duration);
+transition-property:transform, left, top; /* bad idea! */
+will-change:transform, left, top; /* render optimization */
+}
+
+/* represent the object in 3D space */
+.object3d{
+top:0px;
+position:relative;
+transform:perspective(var(--p, 1000px)) rotateX(var(--xx, 0deg)) translate3d(var(--tx, 0px), var(--ty, 0px), var(--tz, 0px));
+--path-max-rotate:calc(360deg + var(--z, 0) * 1deg);
+--path-max-rotate-2:calc(360deg + var(--y, 0) * 1deg);
+transform-style:preserve-3d;
+margin:auto;
+transition:transform ease var(--animation-duration); /* don't animate top, done! */
+will-change:transform; /* render optimization */
+}
+
+.rotating .angle-guy.z-handle{
+animation:autorotate linear var(--rs, 2s) forwards infinite;
+}
+
+.crotating .angle-guy.y-handle{
+animation:autorotate2 linear var(--rs2, 2s) forwards infinite;
+}
+
+.crotating .main-stage > .angle-guy::before{
+animation:autorotate3 linear var(--rs2, 2s) forwards infinite;
+}
+
+@keyframes autorotate{
+	100%{
+		transform:rotateZ(var(--path-max-rotate, 0deg));
+	}
+}
+
+@keyframes autorotate2{
+	100%{
+		transform:rotateY(var(--path-max-rotate-2, 0deg));
+	}
+}
+
+@keyframes autorotate3{
+	0%{
+		width:var(--width);
+	}
+	50%{
+		width:var(--shadow-min-length);
+	}
+	100%{
+		width:var(--width);
+	}
+}
+
+/* more animations */
+.scalable #controls button,
+.scalable .extension button{
+transition:background-color ease 0.2s;
+}
+
+.scalable label > span,
+.scalable details summary,
+.scalable .decision_maker input,
+.scalable .footer a{
+transition:opacity ease 0.2s;
+}
+
+.scalable input[type="range"]::-moz-range-thumb,
+.scalable input[type="range"]::-moz-range-progress{
+transition:background-color ease 0.2s;
+transition-property:background-color, box-shadow;
+}
+
+.scalable input[type="range"],
+.scalable input[type="range"]::-webkit-slider,
+.scalable input[type='range']::-webkit-slider-thumb{
+transition:background-color ease 0.7s;
+transition-property:background-color, box-shadow;
+}
+
+.scalable .angle-guy{
+transition:transform ease var(--animation-duration);
+}
+
+/* Control layout customization */
+:root{
+--controls-active:linear-gradient(0deg, rgba(0,100,200,0.4), rgba(0,100,200,0.4));
+--controls-active-warn:linear-gradient(0deg, rgba(0,255,0,0.4), rgba(0,255,0,0.4));
+--control-body:#000;
+--control-text-color:#fff;
+--button-body:rgba(255,255,255,0.1);
+--button-hover:rgba(255,255,255,0.2);
+--button-active:rgba(255,255,255,0.15);
+--button-color:#fff;
+--nested-option:#fff;
+--range-body:rgb(20,20,20);
+--range-body-hover:rgb(30,30,30);
+--range-fill:rgb(0,40,80);
+--range-fill-hover:rgb(0,50,100);
+--range-thumb:rgb(0,100,200);
+--range-thumb-hover:rgb(0,110,210);
+--range-thumb-hover-glare:rgb(0,160,255);
+--range-thumb-active:#fff;
+}
+
+/*
+.color-preset-1{
+--range-fill:rgb(40,40,40);
+--range-fill-hover:rgb(50,50,50);
+--range-thumb:rgb(80,80,80);
+--range-thumb-hover:rgb(100,100,100);
+--range-thumb-hover-glare:rgb(120,120,120);
+}
+
+.color-preset-2{
+--range-fill:rgb(130,130,130);
+--range-fill-hover:rgb(140,140,140);
+--range-thumb:rgb(230,230,230);
+--range-thumb-hover:rgb(240,240,240);
+--range-thumb-hover-glare:rgb(255,255,255);
+}
+*/
+
+/* controls */
+#controls
+{
+position:fixed;
+left:0px;
+top:0px;
+background-color:var(--control-body);
+display:block;
+padding:4px 0;
+color:var(--control-text-color);
+width:292px;
+height:100%;
+transition-property:transform;
+transition-duration:0.64s;
+transition-timing-function:cubic-bezier(.17,.84,.44,1);
+box-shadow:4px 0 10px 0px rgba(0,0,0,0.2);
+}
+
+/* additional controls */
+button.disabled{
+opacity:0.4;
+pointer-events:none;
+}
+
+button.board-borders::before{
+content:"Hide ";
+}
+.noborders button.board-borders::before{
+content:"Show ";
+}
+
+button.anim-boost::before{
+content:"Reduce ";
+}
+.noanimations button.anim-boost::before{
+content:"Enable ";
+}
+
+.debug #controls button.debug-mode{
+background-image:var(--controls-active);
+}
+
+.crotating #controls button.anti360{
+background-image:var(--controls-active);
+}
+
+.noanimations #controls button.anim-boost{
+background-image:var(--controls-active-warn);
+}
+
+.noscroll #controls button.body-scroll{
+background-image:var(--controls-active-warn);
+}
+
+.noantialiasing #controls button.no-anti-aliasing{
+background-image:var(--controls-active-warn);
+}
+
+.rotating #controls button.spin360,
+.rotating .extension button.spin360{
+background-image:var(--controls-active);
+}
+
+button.body-scroll::before{
+content:"Disable ";
+}
+.noscroll button.body-scroll::before{
+content:"Enable ";
+}
+
+/* controls makeup */
+#controls summary{
+position:relative;
+padding:8px 8px;
+margin:2px 0;
+}
+
+#controls button, .extension button{
+display:inline-block;
+background:var(--button-body);
+color:var(--button-color);
+border:0;
+position:relative;
+font-size:10px;
+padding:6px 14px;
+margin:2px auto;
+width:48%;
+outline-offset:-4px;
+}
+
+#controls button.ehide::before{
+content:"Hide ";
+}
+
+#controls button:hover, .extension button:hover{
+background:var(--button-hover);
+}
+#controls button:active, .extension button:active{
+background:var(--button-active);
+}
+
+#controls.hide{
+transform:translateX(-100%);
+}
+
+#controls.hide button.ehide{
+background-image:var(--controls-active);
+}
+
+#controls.hide button.ehide::before{
+content:"Show ";
+}
+
+label{
+display:block;
+padding:4px 8px;
+}
+
+label > span{
+display:inline-block;
+color:var(--nested-option);
+width:20px;
+height:12px;
+line-height:12px;
+position:relative;
+left:0px;
+top:-2px;
+opacity:0.6;
+}
+
+label:hover > span{
+opacity:1;
+}
+
+label > span:last-child{
+width:50px;
+text-align:right;
+}
+
+input[type="range"]{
+-webkit-appearance:none;
+appearance:none;
+padding:0;
+margin:0;
+overflow:hidden;
+width:200px;
+height:12px;
+background:var(--range-body);
+}
+
+/* range makeup for Chrome */
+@media screen and (-webkit-min-device-pixel-ratio:0)
+{
+input[type='range']::-webkit-slider-thumb
+{
+-webkit-appearance:none;
+width:15px;
+height:12px;
+cursor:ew-resize;
+background:var(--range-thumb);
+box-shadow:-100px 0 0 100px var(--range-fill); /* one of the eureka moments, when I found it working ^)^ */
+}
+
+input[type='range']:hover::-webkit-slider-thumb
+{
+background:var(--range-thumb-hover);
+box-shadow:-100px 0 0 100px var(--range-fill-hover);
+}
+
+input[type='range']:active::-webkit-slider-thumb
+{
+background:var(--range-thumb-active);
+}
+
+input[type='range']:hover, input[type='range']:active
+{
+background:var(--range-body-hover);
+}
+}
+
+/* range makeup for FireFox */
+input[type="range"]::-moz-range-thumb
+{
+appearance:none;
+width:15px;
+height:12px;
+background:var(--range-thumb);
+border:0;
+border-radius:0;
+cursor:ew-resize;
+}
+
+input[type="range"]:hover::-moz-range-thumb
+{
+background:var(--range-thumb-hover);
+}
+
+input[type="range"]::-moz-range-thumb:hover
+{
+background:var(--range-thumb-hover-glare);
+}
+
+input[type="range"]:active::-moz-range-thumb,
+input[type="range"]::-moz-range-thumb:active
+{
+background:var(--range-thumb-active);
+}
+
+input[type="range"]::-moz-range-progress
+{
+height:12px;
+background:var(--range-fill);
+}
+
+input[type="range"]:hover::-moz-range-progress
+{
+background:var(--range-fill-hover);
+}
+
+/* extensions */
+.extension{
+position:fixed;
+left:292px;
+top:0px;
+width:36px;
+background:black;
+box-shadow:4px 0 10px 0px rgba(0,0,0,0);
+font-size:0;
+transition-property:left, transform, box-shadow;
+transition-duration:0.64s;
+transition-timing-function:cubic-bezier(.17,.84,.44,1);
+transform:translateX(-100%);
+padding:0;
+display:block;
+}
+
+.extension button{
+width:100%;
+height:32px;
+padding:0;
+margin:0;
+}
+
+.controls-hidden .extension{
+left:0px;
+transform:translateX(0%);
+box-shadow:4px 0 10px 0px rgba(0,0,0,0.2);
+}
+
+/* get rid of those hated features! */
+details summary{
+cursor: pointer;
+opacity: 0.45;
+}
+
+details[open] summary{
+opacity:1;
+}
+
+/* choose the best one - thing */
+.decision_maker > span{
+padding:2px 29px 11px;
+display:block;
+box-sizing:border-box;
+width:100%;
+font-size:0;
+}
+
+.decision_maker label{
+display:inline-block;
+padding:0;
+position:relative;
+}
+
+.decision_maker input{
+position:relative;
+appearance:none;
+-webkit-appearance:none;
+width:37px;
+height:12px;
+display:inline-block;
+background:var(--preview-color);
+box-sizing:border-box;
+margin:0 2px;
+padding:0;
+cursor:pointer;
+opacity:0.8;
+}
+
+.decision_maker input:hover{
+opacity:1;
+}
+
+.decision_maker input:checked{
+opacity:0.4;
+cursor:default;
+}
+
+input.decision_cache{
+display:none;
+}
+
+/* Reusable Rectangles [v0.2] */
+.reusable-rect{
+--x:0deg;
+--y:0deg;
+--z:0deg;
+--width:30px;
+--height:30px;
+--length:30px;
+--left:0px;
+--top:0px;
+--zindex:0px;
+
+--default-color:white;
+--back-color:red;
+--front-color:green;
+--x-axis-left-color:orange;
+--x-axis-right-color:yellow;
+--y-axis-top-color:black;
+--y-axis-bottom-color:blue;
+
+position:absolute;
+left:0%;
+top:0%;
+width:var(--width);
+height:var(--length);
+background:var(--back-color, var(--default-color));
+display:inline-block;
+transform:rotateX(var(--x, 0deg)) rotateY(var(--y, 0deg)) rotateZ(var(--z, 0deg)) translate3d(var(--left, 0px), var(--top, 0px), var(--zindex, 0px));
+transform-origin:50% 50%;
+transform-style:preserve-3d;
+}
+
+/* all sides */
+.reusable-rect .sides{
+position:absolute;left:0;top:0;display:block;transform-style:preserve-3d;box-shadow:0 0 0 2px rgba(0,0,0,0);
+}
+
+/* upper part */
+.reusable-rect:before{
+transform:translateZ(var(--height));
+background:var(--front-color,var(--default-color));
+}
+
+/* sides x-axis - horz */
+.reusable-rect .side1{
+width:var(--height);
+height:var(--length);
+transform:rotateY(-90deg);
+transform-origin:0% 0%;
+background:var(--x-axis-left-color,var(--default-color));
+}
+
+.reusable-rect .side1::before{
+background:var(--x-axis-right-color,var(--default-color));
+transform:translateZ(calc(var(--width) * -1));
+}
+
+/* sides y-axis - vert */
+.reusable-rect .side2{
+width:var(--width);
+height:var(--height);
+transform:rotateX(90deg);
+transform-origin:0% 0%;
+background:var(--y-axis-top-color,var(--default-color));
+}
+
+.reusable-rect .side2::before{
+background:var(--y-axis-bottom-color,var(--default-color));
+transform:translateZ(calc(var(--length) * -1));
+}
+
+/* all in common */
+.reusable-rect:before, .reusable-rect .side1::before, .reusable-rect .side2::before{
+content:"";
+position:absolute;
+left:0;
+top:0;
+width:100%;
+height:100%;
+display:block;
+box-shadow:0 0 0 2px rgba(0,0,0,0);
+}
+
+/* Position, transform and other definations of the 3D Object */
+.main-stage{
+position:relative;
+top:0;
+left:0;
+width:246px;
+height:305px;
+}
+
+.main-stage > .angle-guy::before{
+content:"";
+position:absolute;
+left:50%;
+top:50%;
+filter:var(--shadow-blur-radius);
+border-radius:40%;
+background-color:rgba(0,0,0,0.56);
+backface-visibility:hidden;
+transform:translate(-50%,-50%) rotateX(0.01deg); /* pretty that kind of hack! */
+transition:ease 1s;
+transition-property:transform, width, height, background-color;
+will-change:transform;
+min-width:var(--shadow-min-length);
+min-height:var(--shadow-min-length);
+}
+
+.main-stage > .angle-guy::before{
+width:calc(var(--width) * var(--cos2));
+height:calc(var(--height) * var(--cos));
+}
+
+.angle-guy{
+position:absolute;
+left:0;
+top:0;
+width:100%;
+height:100%;
+display:block;
+}
+
+.main-rect{
+position:absolute;
+left:50%;
+top:50%;
+transform:translate(-50%,-50%) translateZ(var(--com));
+transition:transform ease 1s;
+width:var(--width);
+height:var(--height);
+}
+
+.guitar{
+background-color:rgba(0,0,0,0);
+box-shadow:0 0 0 2px rgba(0,0,0,0);
+}
+
+.guitar .guitar-base,
+.guitar .guitar-base-contents{
+position:absolute;
+left:0;
+bottom:0;
+width:var(--width);
+height:var(--base-height);
+z-index:300;
+}
+
+.guitar .guitar-neck,
+.guitar .guitar-neck-mask{
+position:absolute;
+left:50%;
+top:var(--head-height);
+width:var(--neck-width);
+height:var(--neck-height);
+transform:translateX(-50%);
+}
+
+.guitar .guitar-head{
+position:absolute;
+left:50%;
+width:var(--head-width);
+height:var(--head-height);
+}
+
+/* nests */
+.nest > div{
+position:absolute;
+left:0;
+top:0;
+width:100%;
+height:100%;
+display:block;
+transform-style:preserve-3d;
+background-color:rgba(0,0,0,0); /* mask anti-aliasing hack, I don't know how it works on Firefox! */
+box-shadow:0 0 0 2px rgba(0,0,0,0);
+}
+
+.nest > div::before,
+.nest > div::after{
+content:"";
+position:absolute;
+left:0;
+top:0;
+width:100%;
+height:100%;
+display:block;
+}
+
+.wrap{
+position:absolute;
+left:var(--potential-shift);
+top:0;
+width:100%;
+height:100%;
+display:block;
+transform:translateZ(var(--potential-displacement));
+}
+
+/* [build] Guitar Base */
+.guitar-base.nest div::before,
+.guitar-base.nest div::after{
+background-color:var(--preview-color);
+transition:background-position ease 1s;
+will-change:background-position;
+}
+
+/* [build] Guitar Neck */
+.guitar .guitar-neck::before,
+.guitar .guitar-neck::after{
+content:"";
+position:absolute;
+left:0;
+top:0;
+width:100%;
+height:100%;
+box-shadow:0 0 0 2px rgba(0,0,0,0);
+display:block;
+}
+
+.guitar-neck .sides-tb{
+position:absolute;
+left:0;
+top:auto;
+bottom:0;
+width:100%;
+height:var(--neck-thickness);
+}
+
+.guitar-neck .sides-tb::before,
+.guitar-neck .sides-tb::after{
+content:"";
+position:absolute;
+left:0;
+top:0;
+width:100%;
+height:100%;
+box-shadow:0 0 0 2px rgba(0,0,0,0);
+display:block;
+}
+
+.guitar-neck .sides-tb::after{
+left:50%;
+width:var(--neck-min-width);
+}
+
+.guitar-neck .sides-rl{
+position: absolute;
+top: auto;
+left: 0px;
+bottom: -1px;
+width: 100%;
+height: 1px;
+}
+
+.guitar-neck .sides-rl::before,
+.guitar-neck .sides-rl::after{
+content:"";
+position:absolute;
+left:0;
+bottom:0;
+width:var(--neck-thickness);
+height:var(--neck-height);
+box-shadow:0 0 0 2px rgba(0,0,0,0);
+display:block;
+}
+
+/* [build] Guitar Pockets */
+.guitar .pocket{
+position:absolute;
+left:50%;
+bottom:100px;
+width:var(--bottom-pocket-width);
+height:var(--bottom-pocket-height);
+transform:translateX(-50%);
+}
+
+.guitar .pocket > div{
+transform:translateZ(calc(var(--i) * 2px));
+}
+
+.guitar .pocketup{
+width:calc(var(--bottom-pocket-width) - 92px);
+transform:translateX(-50%) translateZ(6px);
+}
+
+/* [build] Guitar String Pocket */
+.string-pocket{
+position:absolute;
+left:50%;
+transform:translateX(-50%) translateZ(var(--string-distance)) rotateX(var(--string-tilt));
+width:var(--string-pocket-width);
+height:calc(var(--height) - var(--pocket-top));
+transform-origin:50% 100%;
+}
+
+.guitar .pocket,
+.guitar .string-pocket{
+bottom:var(--pocket-top);
+}
+
+.string-pocket > .head-wrap{
+position:absolute;
+top:0;
+left:50%;
+width:var(--head-width);
+height:var(--head-height);
+transform:translateX(-50%) rotateX(var(--head-angle));
+transform-origin:50% 100%;
+}
+
+/* [build] Neck Intersection */
+.neck-intersection{
+position:absolute;
+left:50%;
+--left:-50%;
+--top:-100%;
+--zindex:var(--potential-intersection-displacement);
+--width:var(--potential-intersection-width);
+--height:var(--potential-intersection-length);
+--length:var(--potential-intersection-height);
+
+--front-color: transparent;
+--y-axis-bottom-color: transparent;
+}
+
+.neck-intersection,
+.neck-intersection.reusable-rect .side1,
+.neck-intersection.reusable-rect .side1::before,
+.neck-intersection.reusable-rect .side2{
+background-size:var(--neck-intersection-border-size) 100%, var(--neck-intersection-border-size) 100%, 100% var(--neck-intersection-border-size), 100% var(--neck-intersection-border-size), 100% 100%;
+background-position:0 0, right 0, 0 0, 0 bottom, 0 0;
+background-repeat:no-repeat;
+}
+
+.sound-hole,
+.sound-hole-borders{
+position:absolute;
+left:50%;
+top:var(--sound-hole-position);
+width:var(--sound-hole-diameter-main);
+height:var(--sound-hole-diameter-main);
+border-radius:50%;
+transform:translate(-50%, -50%);
+overflow:hidden;
+}
+
+.sound-hole-borders{
+width:var(--sound-hole-diameter-border);
+height:var(--sound-hole-diameter-border);
+border:var(--sound-hole-border-1);
+overflow:visible;
+}
+
+.sound-hole-borders::before,
+.sound-hole-borders::after{
+content:"";
+position:absolute;
+left:50%;
+top:50%;
+width:116%;
+height:116%;
+border:var(--sound-hole-border-2);
+border-radius:50%;
+display:block;
+transform:translate(-50%, -50%);
+box-shadow:0 0 0 2px rgba(0,0,0,0);
+}
+
+.sound-hole-borders::after{
+width:128%;
+height:128%;
+border-right-color:transparent;
+border-bottom-color:transparent;
+opacity:0.4;
+}
+
+.sound-hole::before{
+content:"";
+position:absolute;
+left:6px;
+top:6px;
+width:100%;
+height:100%;
+border-radius:50%;
+}
+
+.sound-hole::after{
+content:"";
+position:absolute;
+left:calc(40px * var(--y) / 180);
+top:calc(10px * var(--y) / 180);
+width:120%;
+height:120%;
+transform:translate(20%,20%);
+}
+
+/* [build] String Configuration */
+.string-wrap{
+position:absolute;
+left:0;
+bottom:var(--string-attachment-top);
+width:100%;
+height:40px;
+display:block;
+transform:rotateX(90deg) translateY(100%);
+transform-origin:0% 100%;
+}
+
+.string-wrap .reusable-rect{
+position:absolute;
+top:0;
+--width:var(--string-size);
+--length:var(--string-size);
+--height:var(--string-height);
+
+--back-color:transparent;
+--front-color:transparent;
+}
+
+.string-wrap .reusable-rect:nth-child(2){
+left:var(--string-shift-1);
+}
+
+.string-wrap .reusable-rect:nth-child(3){
+left:var(--string-shift-2);
+}
+
+.string-wrap .reusable-rect:last-child{
+left:auto;
+right:0;
+}
+
+.string-wrap .reusable-rect:nth-last-child(2){
+left:auto;
+right:var(--string-shift-1);
+}
+
+.string-wrap .reusable-rect:nth-last-child(3){
+left:auto;
+right:var(--string-shift-2);
+}
+
+.guitar .pocket.string-knot{
+width:var(--string-pocket-width);
+transform:translateX(-50%) translateZ(var(--string-knot-shift));
+}
+
+.guitar .pocket.string-knot > .circ{
+position:absolute;
+top:50%;
+width:var(--string-joiner-circle-diameter);
+height:var(--string-joiner-circle-diameter);
+border-radius:50%;
+transform:translate(-50%);
+transform-style:preserve-3d;
+box-shadow:0 0 0 2px rgba(0,0,0,0);
+}
+
+.circ > div,
+.circ > div::before,
+.circ > div::after{
+content:"";
+position:absolute;
+left:0;
+top:0;
+width:100%;
+height:100%;
+border-radius:50%;
+transform:translateZ(1px);
+box-shadow:0 0 0 2px rgba(0,0,0,0);
+}
+
+.circ > div::after{
+transform:translateZ(2px);
+}
+
+.guitar .pocket.string-knot > .circ.cs{
+transform:translate(50%);
+}
+
+.circ.c1{
+left:var(--string-shift-1);
+}
+.circ.c2{
+left:var(--string-shift-2);
+}
+
+.circ.c22{
+right:var(--string-shift-2);
+}
+.circ.c11{
+right:var(--string-shift-1);
+}
+
+.circ.c3{
+right:0;
+}
+
+.circ.c0{
+left:0;
+}
+
+.guitar .pocket.string-knot > .knot-stretch::before{
+background-image:none;
+mask-image:none;
+-webkit-mask-image:none;
+}
+
+.guitar .pocket.string-knot > .knot-stretch{
+position:absolute;
+top:18%;
+left:50%;
+--width:var(--string-knot-s-width);
+--height:var(--string-knot-s-length);
+--length:var(--string-knot-s-height); /*turns height*/
+transform:translateX(-50%) rotate(var(--string-knot-tilt));
+}
+
+/* [build] Neck Mask */
+
+.guitar .guitar-neck-mask::before,
+.guitar .guitar-neck-mask::after{
+content:"";
+position:absolute;
+left:0;
+bottom:0;
+width:100%;
+background-size:var(--neck-pattern-size);
+}
+
+.guitar .guitar-neck-mask::before{
+height:var(--neck-pattern-extension-height);
+z-index:5;
+}
+
+.guitar .guitar-neck-mask::after{
+height:100%;
+}
+
+.head-knot{
+position:absolute;
+left:50%;
+--left:-50%;
+top:var(--head-height);
+--width:var(--neck-min-width);
+--height:var(--head-knot-size);
+--length:var(--head-knot-size);
+}
+
+.head-wrap > .reusable-rect{
+position:absolute;
+left:17%;
+top:50%;
+--top:-70%;
+--left:-50%;
+--width:var(--head-string-connectors-width);
+--height:var(--head-string-connectors-height);
+--length:var(--head-string-connectors-length);
+--zindex:calc(var(--string-distance) / -2);
+--z:var(--head-string-connectors-rotate);
+}
+
+.head-wrap > .reusable-rect.cs{
+left:auto;
+right:17%;
+}
+
+.head-wrap > .reusable-rect.p1{
+top:30%;
+}
+
+.head-wrap > .reusable-rect.p2{
+top:70%;
+}
+
+.strings-tied{
+position:absolute;
+left:50%;
+top:0;
+width:var(--string-pocket-width);
+height:100%;
+transform:translateX(-50%);
+}
+
+.strings-tied .tie::before,
+.strings-tied .tie::after,
+.strings-tied::before,
+.strings-tied::after{
+content:"";
+position:absolute;
+bottom:0;
+width:var(--string-size);
+transform-origin:50% 100%;
+box-shadow:0 0 0 2px rgba(0,0,0,0);
+}
+
+.strings-tied .tie{
+position:absolute;
+left:0;
+top:0;
+width:100%;
+height:100%;
+}
+
+/* corner strings */
+.strings-tied::before{
+left:0;
+transform:rotate(3deg);
+}
+
+.strings-tied::after{
+right:0;
+transform:rotate(-1deg);
+}
+
+.strings-tied::before,
+.strings-tied::after{
+height:44px;
+}
+
+/* middle strings */
+.strings-tied .tie1::before{
+left:var(--string-shift-1);
+transform:rotate(-3deg);
+}
+
+.strings-tied .tie1::after{
+right:var(--string-shift-1);
+transform:rotate(4deg);
+}
+
+.strings-tied .tie1::before,
+.strings-tied .tie1::after{
+height:75px;
+}
+
+/* closest strings */
+.strings-tied .tie2::before{
+left:var(--string-shift-2);
+transform:rotate(-6.5deg);
+}
+
+.strings-tied .tie2::after{
+right:var(--string-shift-2);
+transform:rotate(7.5deg);
+}
+
+.strings-tied .tie2::before,
+.strings-tied .tie2::after{
+height:107px;
+}
+
+/* [Build] Head Backside */
+.head-back{
+position:absolute;
+left:0;
+top:0;
+width:100%;
+height:100%;
+transform:translateZ(calc(var(--head-thickness) * -1 - var(--string-distance) / 2));
+}
+
+.head-back .sector{
+position:absolute;
+left:50%;
+top:50%;
+transform:translate(-50%,-50%);
+width:var(--head-config-length);
+height:4px;
+}
+
+.head-back .sector:first-child{
+top:var(--head-config-spacing);
+}
+
+.head-back .sector:last-child{
+top:auto;
+bottom:var(--head-config-spacing);
+transform:translate(-50%,50%);
+}
+
+.head-back .sector > .reusable-rect{
+position:absolute;
+--left:-50%;
+left:50%;
+top:var(--head-config-cube-shift);
+--width:var(--head-config-length);
+--height:var(--head-config-cube-size);
+--length:var(--head-config-cube-size);
+}
+
+/* Colors for debug purposes on neck */
+
+/* back side */
+.guitar .guitar-neck::after{
+background:var(--preview-color);
+}
+
+/* top */
+.guitar-neck .sides-tb::after{
+/*background:var(--preview-color);*/
+}
+
+/* right */
+.guitar-neck .sides-rl::before{
+background:var(--preview-color);
+}
+
+/* left */
+.guitar-neck .sides-rl::after{
+background:var(--preview-color);
+}
+
+/* Texture defination */
+/* [Begin] :: Neck */
+
+/* neck(front) */
+.guitar .guitar-neck-mask{
+background-image:var(--texture-neck-front);
+background-size:cover;
+background-color:#333; /* offline fallback */
+}
+
+/* neck(front) border color */
+.guitar .guitar-neck::before{
+background-color:white;
+}
+
+/* neck(back) */
+.guitar .guitar-neck::after{
+background-image:var(--texture-neck-back);
+background-size:cover;
+}
+
+/* neck bottom extension */
+.guitar-neck .sides-tb::before{
+background-image:var(--texture-neck-bottom);
+}
+
+/* neck left and right sides */
+.guitar-neck .sides-rl::before,
+.guitar-neck .sides-rl::after{
+background-image:var(--texture-neck-sides);
+background-size:100% auto;
+background-position:left top;
+}
+
+/* [Begin] :: Base */
+
+/* base (general) center portion */
+.guitar-base.nest div::before,
+.guitar-base.nest div::after{
+mask-image: var(--guitar-mask);
+mask-size:cover;
+mask-position:center;
+-webkit-mask-image: var(--guitar-mask);
+-webkit-mask-size:cover;
+-webkit-mask-position:center;
+
+background-image:var(--texture-base-center);
+background-size:auto;
+background-position:0 calc(var(--i) * var(--i) / var(--shade-displacement-modulus) * 1px);
+}
+
+/* different base texture for front side */
+.guitar-base.nest div:nth-last-child(-n+5)::before,
+.guitar-base.nest div:nth-last-child(-n+5)::after{
+background-image:var(--guitar-mask-with-border), var(--texture-base-front);
+background-size:cover, auto;
+background-position:center, 0 calc(var(--i) * 1px);
+}
+
+/* different base texture for back side */
+.guitar-base.nest div:nth-child(-n+3)::before,
+.guitar-base.nest div:nth-child(-n+3)::after{
+background-image:var(--guitar-mask-with-border), var(--texture-base-back);
+background-size:cover, cover;
+}
+
+/* [Begin] :: Head */
+
+/* head (general) center portion */
+.guitar-head div::before,
+.guitar-head div::after{
+mask-image: var(--head-mask);
+mask-size:cover;
+mask-position:center;
+-webkit-mask-image: var(--head-mask);
+-webkit-mask-size:cover;
+-webkit-mask-position:center;
+background-color:var(--preview-color) !important;
+background-image:var(--texture-head-center);
+background-size:auto 100%;
+background-position:center;
+}
+
+/* different head texture for front side */
+.guitar-head div:nth-last-child(-n+2)::before,
+.guitar-head div:nth-last-child(-n+2)::after{
+background-image:var(--texture-head-front);
+}
+
+/* different head texture for back side */
+.guitar-head div:nth-child(-n+2)::before,
+.guitar-head div:nth-child(-n+2)::after{
+background-image:var(--head-mask-with-border), var(--texture-head-back);
+background-size:cover, cover;
+background-position:center, center;
+}
+
+/* [Begin] :: Pocket #1 */
+
+/* general mask for pocket */
+.guitar .pocket > div::after,
+.guitar .pocket > div::before{
+mask-image: var(--pocket-mask);
+mask-size:cover;
+mask-position:center;
+-webkit-mask-image: var(--pocket-mask);
+-webkit-mask-size:cover;
+-webkit-mask-position:center;
+background-size:cover;
+}
+
+/* apply texture */
+.guitar .pocket > div::before{
+background-image:var(--texture-big-pocket);
+}
+
+/* lightness equalisation for shading purposes */
+.guitar .pocket > div::after{
+transform:translateZ(1px);
+background-image:linear-gradient(rgba(0,0,0,0.8),rgba(0,0,0,0.8)), var(--texture-big-pocket);
+}
+
+/* [Begin] :: Pocket #2 */
+
+/* apply texture */
+.guitar .pocketup > div::before,
+.guitar .pocketup > div::after{
+background:blue;
+background-image:var(--texture-big-pocket);
+background-size:cover;
+}
+
+/* lightness equalisation */
+.guitar .pocketup > div::after{
+background-image:linear-gradient(rgba(0,0,0,0.7),rgba(0,0,0,0.7)), var(--texture-small-pocket);
+}
+
+/* [Begin] :: Neck Intersection */
+
+.neck-intersection,
+.neck-intersection.reusable-rect .side1,
+.neck-intersection.reusable-rect .side1::before,
+.neck-intersection.reusable-rect .side2{
+--border-line-gr:linear-gradient(white,white);
+background-image:var(--border-line-gr), var(--border-line-gr), var(--border-line-gr), var(--border-line-gr), var(--texture-neck-intersection);
+}
+
+/* [Begin] :: Sound Hole(!) */
+
+.sound-hole{
+background-color:#1e1f1c;
+}
+
+.sound-hole::before{
+background-color:#1E1C1A;
+}
+
+.sound-hole::after{
+background-image:radial-gradient(circle at 50%, #D1B586 20%, transparent 60%);
+background-size:100% 100%;
+opacity:0.2;
+}
+
+/* [Begin] :: Strings */
+
+/* general */
+.string-wrap .reusable-rect{
+--x-axis-left-color:rgba(255,255,255,0.4);
+--x-axis-right-color:rgba(0,0,0,0.4);
+--y-axis-top-color:rgba(255,255,255,0.4);
+--y-axis-bottom-color:rgba(255,255,255,0.3);
+}
+
+/* last two */
+.string-wrap .reusable-rect:last-child,
+.string-wrap .reusable-rect:nth-last-child(2){
+--x-axis-left-color:rgba(255,255,255,0.2);
+--x-axis-right-color:rgba(0,0,0,0.2);
+--y-axis-top-color:rgba(255,255,255,0.2);
+--y-axis-bottom-color:rgba(255,255,255,0.15);
+}
+
+/* [Begin] :: String Knot */
+
+/* general */
+.guitar .pocket.string-knot > .circ,
+.circ > div,
+.circ > div::before,
+.circ > div::after{
+background-color:white;
+}
+
+/* top side */
+.circ > div::after{
+background-color:rgb(90,90,90);
+}
+
+/* [Begin] :: String Knot Stretch */
+
+.guitar .pocket.string-knot > .knot-stretch{
+--back-color: #fff;
+--front-color: #eee;
+--x-axis-left-color: #ddd;
+--x-axis-right-color: #ddd;
+--y-axis-top-color: #bababa;
+--y-axis-bottom-color: #565;
+}
+
+/* [Begin] :: Neck Stripes */
+
+.guitar .guitar-neck-mask::before,
+.guitar .guitar-neck-mask::after{
+background-image:linear-gradient(0deg, #FEEDCF 2px, transparent 2px);
+}
+
+/* [Begin] :: Head Knot */
+
+.head-knot{
+--back-color:transparent;
+--front-color:#ccc;
+--x-axis-left-color:#C09A69;
+--x-axis-right-color:#C09A69;
+--y-axis-top-color:#c3c3c3;
+--y-axis-bottom-color:#ccc;
+}
+
+/* [Begin] :: Head String Holders */
+
+.head-wrap > .reusable-rect{
+--back-color:transparent;
+--front-color:white;
+--x-axis-left-color:#aaa;
+--x-axis-right-color:#aaa;
+--y-axis-top-color:#eee;
+--y-axis-bottom-color:#bbb;
+}
+
+/* [Begin] :: Strings attached with String Holders */
+
+.strings-tied .tie::before,
+.strings-tied .tie::after,
+.strings-tied::before,
+.strings-tied::after{
+background-color:rgba(255,255,255,0.5);
+}
+
+/* [Begin] :: Head Backside Configurators */
+
+.head-back .sector > .reusable-rect{
+--back-color:white;
+--front-color:#777777;
+--x-axis-left-color:#bbb;
+--x-axis-right-color:#bbb;
+--y-axis-top-color:#ccc;
+--y-axis-bottom-color:#aaa;
+}
+
+/* [Begin] :: Sound Hole(outside) */
+.sound-hole-borders{
+--sound-hole-border-1:4px solid white;
+--sound-hole-border-2:2px solid white;
+}
+
+/* Footer */
+@media screen and not ( min-height: 640px ){
+.footer{
+display:none!important;
+}
+}
+
+.footer{
+position:absolute;
+left:50%;
+bottom:0;
+height:60px;
+white-space:nowrap;
+transform:translateX(-50%);
+background:black;
+display:block;
+user-select:none;
+-webkit-user-select:none;
+}
+
+.footer a{
+padding:0 14px;
+display:inline-block;
+text-decoration:none;
+font-size:0;
+opacity:0.6;
+position:relative;
+}
+
+.footer .twitter{
+top:2px;
+}
+
+.footer a:hover{
+opacity:1;
+}
+
+.footer .twitter svg{
+width:28px; /* 2% margin extended */
+height:28px;
+fill:white;
+}
+
+.footer .dribbble svg{
+width:24.5px;
+height:24.5px;
+overflow:visible;
+}
+
+.footer .dribbble svg path{
+fill:white!important;
+}
+
+/* Textures */
+
+/* Black */
+.color-preset-1{
+--preview-color:#222;
+
+--texture-neck-front:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/black/neck-front.png");
+--texture-neck-back:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/black/neck-side.png");
+--texture-neck-bottom:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/black/neck-side.png");
+--texture-neck-sides:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/black/neck-side2.png");
+--texture-neck-intersection:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/black/mask-back.png");
+
+--texture-base-center:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/black/mask-behace.png");
+--texture-base-front:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/black/mask-front.png");
+--texture-base-back:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/black/mask-back.png");
+
+--texture-head-center:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/black/mask-behace.png");
+--texture-head-front:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/black/mask-behace.png");
+--texture-head-back:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/black/mask-head.png");
+
+--texture-big-pocket:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/black/mask-pocket.png");
+--texture-small-pocket:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/black/mask-pocket-small.png");
+}
+
+/* White */
+.color-preset-2{
+--preview-color:white;
+
+--texture-neck-front:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/white/neck-front.png");
+--texture-neck-back:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/white/neck-side.png");
+--texture-neck-bottom:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/white/neck-side.png");
+--texture-neck-sides:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/white/neck-side2.png");
+--texture-neck-intersection:linear-gradient(#9D591A, #9D591A);
+
+--texture-base-center:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/white/mask-behace.png");
+--texture-base-front:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/white/mask-front.png");
+--texture-base-back:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/white/mask-back.png");
+
+--texture-head-center:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/white/mask-behace.png");
+--texture-head-front:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/white/mask-head-back.png");
+--texture-head-back:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/white/mask-head.png");
+
+--texture-big-pocket:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/white/mask-pocket.png");
+--texture-small-pocket:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/white/mask-pocket-small.png");
+}
+
+.color-preset-2 .guitar .guitar-neck::before{
+background-color:#2F2E2E;
+}
+
+.color-preset-2 .guitar-base.nest div:nth-last-child(-n+5)::before,
+.color-preset-2 .guitar-base.nest div:nth-last-child(-n+5)::after{
+background-image:var(--guitar-mask-with-dark-border), var(--texture-base-front);
+}
+
+.color-preset-2 .guitar-base.nest div:nth-child(-n+3)::before,
+.color-preset-2 .guitar-base.nest div:nth-child(-n+3)::after{
+background-image:var(--guitar-mask-with-dark-border), var(--texture-base-back);
+}
+
+.color-preset-2 .guitar-head div:nth-child(-n+2)::before,
+.color-preset-2 .guitar-head div:nth-child(-n+2)::after{
+background-image:var(--head-mask-with-dark-border), var(--texture-head-back);
+}
+
+.color-preset-2 .sound-hole-borders{
+--sound-hole-border-1:4px solid rgba(0,0,0,0.55);
+--sound-hole-border-2:2px solid rgba(0,0,0,0.4);
+}
+
+.color-preset-2 .circ > div::after{
+background-color:#FFF;
+}
+
+.color-preset-2 .guitar .guitar-neck-mask::before,
+.color-preset-2 .guitar .guitar-neck-mask::after{
+background-image:linear-gradient(0deg, rgba(255,255,255,0.2) 2px, transparent 2px);
+}
+
+.color-preset-2 .strings-tied .tie::before,
+.color-preset-2 .strings-tied .tie::after,
+.color-preset-2 .strings-tied::before,
+.color-preset-2 .strings-tied::after{
+background-color:rgba(50,50,50,0.5);
+}
+
+.color-preset-2 .string-wrap .reusable-rect{
+--x-axis-left-color:#9D591A;
+--x-axis-right-color:rgba(255,255,255,0.3);
+--y-axis-top-color:#DF8C41;
+--y-axis-bottom-color:rgba(255,255,255,0.3);
+}
+
+.color-preset-2 .head-back .sector > .reusable-rect{
+--back-color:#9D591A;
+--front-color:#9D591A;
+--x-axis-left-color:#77645E;
+--x-axis-right-color:#77645E;
+--y-axis-top-color:#444;
+--y-axis-bottom-color:#111;
+}
+
+.color-preset-2 .head-knot{
+--back-color:transparent;
+--front-color:rgb(91,76,70);
+--x-axis-left-color:#D5B677;
+--x-axis-right-color:#D5B677;
+--y-axis-top-color:#AE8447;
+--y-axis-bottom-color:#AE8447;
+}
+
+.color-preset-2 .head-wrap > .reusable-rect{
+--back-color:transparent;
+--front-color:#9D591A;
+--x-axis-left-color:#DDD;
+--x-axis-right-color:#CCC;
+--y-axis-top-color:#AE8447;
+--y-axis-bottom-color:#987241;
+}
+
+/* Wood */
+.color-preset-3{
+--preview-color:#EFBB72;
+
+--texture-neck-front:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/wood/neck-front.png");
+--texture-neck-back:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/wood/neck-side.png");
+--texture-neck-bottom:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/wood/neck-side.png");
+--texture-neck-sides:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/wood/neck-side2.png");
+--texture-neck-intersection:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/wood/neck-side2.png");
+
+--texture-base-center:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/wood/mask-behace.png");
+--texture-base-front:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/wood/mask-front.png");
+--texture-base-back:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/wood/mask-back.png");
+
+--texture-head-center:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/wood/mask-behace.png");
+--texture-head-front:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/wood/mask-head-back.png");
+--texture-head-back:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/wood/mask-head.png");
+
+--texture-big-pocket:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/wood/mask-pocket.png");
+--texture-small-pocket:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/wood/mask-pocket-small.png");
+}
+
+.color-preset-3 .neck-intersection,
+.color-preset-3 .neck-intersection.reusable-rect .side1,
+.color-preset-3 .neck-intersection.reusable-rect .side1::before,
+.color-preset-3 .neck-intersection.reusable-rect .side2{
+--border-line-gr:linear-gradient(#B6803B,#B6803B);
+}
+
+.color-preset-3 .guitar-base.nest div:nth-last-child(-n+5)::before,
+.color-preset-3 .guitar-base.nest div:nth-last-child(-n+5)::after{
+background-image:var(--guitar-mask-with-dark-border), var(--texture-base-front);
+}
+
+.color-preset-3 .guitar-base.nest div:nth-child(-n+3)::before,
+.color-preset-3 .guitar-base.nest div:nth-child(-n+3)::after{
+background-image:var(--guitar-mask-with-dark-border), var(--texture-base-back);
+}
+
+.color-preset-3 .guitar-head div:nth-child(-n+2)::before,
+.color-preset-3 .guitar-head div:nth-child(-n+2)::after{
+background-image:var(--head-mask-with-dark-border), var(--texture-head-back);
+}
+
+.color-preset-3 .guitar-head div:nth-last-child(-n+2)::before,
+.color-preset-3 .guitar-head div:nth-last-child(-n+2)::after{
+background-image:var(--head-mask-with-dark-border), var(--texture-head-front);
+}
+
+.color-preset-3 .sound-hole-borders{
+--sound-hole-border-1:8px dotted rgba(0,0,0,0.55);
+--sound-hole-border-2:2px solid rgba(0,0,0,0.4);
+}
+
+.color-preset-3 .guitar .guitar-neck-mask::before,
+.color-preset-3 .guitar .guitar-neck-mask::after{
+background-image:linear-gradient(0deg, rgba(255,255,255,0.7) 2px, transparent 2px);
+}
+
+.color-preset-3 .head-knot{
+--back-color:transparent;
+--front-color:#504541;
+--x-axis-left-color:#60554F;
+--x-axis-right-color:#60554F;
+--y-axis-top-color:#1D1916;
+--y-axis-bottom-color:#1D1916;
+}
+
+.color-preset-3 .head-wrap > .reusable-rect{
+--back-color:transparent;
+--front-color:#504541;
+--x-axis-left-color:#60554F;
+--x-axis-right-color:#60554F;
+--y-axis-top-color:#60554F;
+--y-axis-bottom-color:#60554F;
+}
+
+.color-preset-3 .head-back .sector > .reusable-rect{
+--back-color:#1D1918;
+--front-color:#60554F;
+--x-axis-left-color:#60554F;
+--x-axis-right-color:#60554F;
+--y-axis-top-color:#60554F;
+--y-axis-bottom-color:#1D1918;
+}
+
+.color-preset-3 .strings-tied .tie::before,
+.color-preset-3 .strings-tied .tie::after,
+.color-preset-3 .strings-tied::before,
+.color-preset-3 .strings-tied::after{
+background-color:#C18C43;
+}
+
+.color-preset-3 .string-wrap .reusable-rect{
+--x-axis-left-color:rgba(0,0,0,0.1);
+--x-axis-right-color:#C18C43;
+--y-axis-top-color:rgba(0,0,0,0.4);
+--y-axis-bottom-color:rgba(0,0,0,0.3);
+}
+
+/* Blue */
+.color-preset-4{
+--preview-color:#00327A;
+
+--texture-neck-front:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/blue/neck-front.png");
+--texture-neck-back:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/blue/neck-side.png");
+--texture-neck-bottom:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/blue/neck-side.png");
+--texture-neck-sides:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/blue/neck-side2.png");
+--texture-neck-intersection:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/blue/mask-back.png");
+
+--texture-base-center:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/blue/mask-behace.png");
+--texture-base-front:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/blue/mask-front.png");
+--texture-base-back:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/blue/mask-back.png");
+
+--texture-head-center:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/blue/mask-behace.png");
+--texture-head-front:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/blue/mask-head-back.png");
+--texture-head-back:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/blue/mask-head.png");
+
+--texture-big-pocket:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/blue/mask-pocket.png");
+--texture-small-pocket:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/blue/mask-pocket-small.png");
+}
+
+.color-preset-4 .head-wrap > .reusable-rect{
+--back-color:transparent;
+--front-color:#FFFDA3;
+--x-axis-left-color:#FFF;
+--x-axis-right-color:#FFEE5F;
+--y-axis-top-color:#AE8447;
+--y-axis-bottom-color:#987241;
+}
+
+.color-preset-4 .head-back .sector > .reusable-rect{
+--back-color:#D5B677;
+--front-color:#FFFDA3;
+--x-axis-left-color:#FFF;
+--x-axis-right-color:#FFEE5F;
+--y-axis-top-color:#AE8447;
+--y-axis-bottom-color:#987241;
+}
+
+.color-preset-4 .strings-tied .tie::before,
+.color-preset-4 .strings-tied .tie::after,
+.color-preset-4 .strings-tied::before,
+.color-preset-4 .strings-tied::after{
+background-color:rgba(245,244,124,0.7);
+}
+
+.color-preset-4 .head-knot{
+--back-color:transparent;
+--front-color:rgb(91,76,70);
+--x-axis-left-color:#D5B677;
+--x-axis-right-color:#D5B677;
+--y-axis-top-color:#AE8447;
+--y-axis-bottom-color:#AE8447;
+}
+
+.color-preset-4 .circ > div::after{
+background-color:#FFFDA3;
+}
+
+.color-preset-4 .string-wrap .reusable-rect{
+--x-axis-left-color:#FFFDA3;
+--x-axis-right-color:#AE8447;
+--y-axis-top-color:rgba(255,255,255,0.4);
+--y-axis-bottom-color:rgba(255,255,255,0.3);
+}
+
+/* Red */
+.color-preset-5{
+--preview-color:#72292B;
+
+--texture-neck-front:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/red/neck-front.png");
+--texture-neck-back:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/red/neck-side.png");
+--texture-neck-bottom:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/red/neck-side.png");
+--texture-neck-sides:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/red/neck-side2.png");
+--texture-neck-intersection:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/red/mask-back.png");
+
+--texture-base-center:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/red/mask-behace.png");
+--texture-base-front:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/red/mask-front.png");
+--texture-base-back:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/red/mask-back.png");
+
+--texture-head-center:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/red/mask-behace.png");
+--texture-head-front:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/red/mask-head-back.png");
+--texture-head-back:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/red/mask-head.png");
+
+--texture-big-pocket:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/red/mask-pocket.png");
+--texture-small-pocket:url("https://shadowshahriar.github.io/assets/codepen/guitar-texture/red/mask-pocket-small.png");
+}
+
+.color-preset-5 .guitar .guitar-neck-mask::before,
+.color-preset-5 .guitar .guitar-neck-mask::after{
+background-image:linear-gradient(0deg, #CEC7B4 2px, transparent 2px);
+}
+
+.color-preset-5 .guitar .guitar-neck::before{
+background-color:#CEC7B4;
+}
+
+.color-preset-5 .head-back .sector > .reusable-rect{
+--back-color:#111;
+--front-color:#444;
+--x-axis-left-color:#333;
+--x-axis-right-color:#333;
+--y-axis-top-color:#121;
+--y-axis-bottom-color:#111;
+}
+
+.color-preset-5 .strings-tied .tie::before,
+.color-preset-5 .strings-tied .tie::after,
+.color-preset-5 .strings-tied::before,
+.color-preset-5 .strings-tied::after{
+background-color:rgba(249,206,199,0.5);
+}
+
+.color-preset-5 .string-wrap .reusable-rect{
+--x-axis-left-color:#BEAC96;
+--x-axis-right-color:#65533F;
+--y-axis-top-color:rgba(255,255,255,0.4);
+--y-axis-bottom-color:rgba(255,255,255,0.3);
+}
+
+.color-preset-5 .guitar .pocket.string-knot > .knot-stretch{
+--back-color: #F9ECDB;
+--front-color: #F9ECDB;
+--x-axis-left-color: #ccc;
+--x-axis-right-color: #ccc;
+--y-axis-top-color: #bababa;
+--y-axis-bottom-color: #565;
+}
+
+.color-preset-5 .circ > div::after,
+.color-preset-3 .circ > div::after{
+background-color:#FFF;
+}
+
+.color-preset-2 .guitar .pocket > div::before,
+.color-preset-3 .guitar .pocket > div::before,
+.color-preset-5 .guitar .pocket > div::before{
+transform:translateZ(1px);
+}
+
+.color-preset-2 .guitar .pocket > div::after,
+.color-preset-3 .guitar .pocket > div::after,
+.color-preset-5 .guitar .pocket > div::after{
+transform:translateZ(0px);
+}
+
+.color-preset-5 .guitar .pocketup > div::before{
+background-image:var(--texture-small-pocket);
+}
